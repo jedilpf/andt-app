@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, ShoppingCart, BarChart3, Settings, TrendingUp, Shield, AlertCircle, CheckCircle, Wallet, ChevronRight, Menu, X, Home } from 'lucide-react';
+import { Users, ShoppingCart, BarChart3, Settings, TrendingUp, Shield, AlertCircle, CheckCircle, Wallet, ChevronRight, Menu, X, Home, FileText } from 'lucide-react';
 
 const menuItems = [
   { path: '/admin', label: '首页概览', icon: Home },
@@ -9,6 +9,7 @@ const menuItems = [
   { path: '/admin/orders', label: '订单管理', icon: ShoppingCart },
   { path: '/admin/stats', label: '数据统计', icon: BarChart3 },
   { path: '/admin/config', label: '系统配置', icon: Settings },
+  { path: '/admin/logs', label: '日志管理', icon: FileText },
 ];
 
 export const AdminDashboard = () => {
