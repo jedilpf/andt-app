@@ -5,7 +5,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Splash, RoleSelect, Login } from './pages/Auth';
 import { UserRoutes } from './pages/UserApp';
 import { ElectricianRoutes } from './pages/ElectricianApp';
-import { AdminDashboard, UserManagement } from './pages/admin/AdminPages';
+import { AdminDashboard, UserManagement, OrderManagement, DataStatistics, SystemConfig } from './pages/admin/AdminPages';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Lazy load MapPage
@@ -43,6 +43,9 @@ const AppContent = () => {
                         <Route path="/login" element={<Login />} />
                         <Route path="/admin" element={<AdminDashboard />} />
                         <Route path="/admin/users" element={<UserManagement />} />
+                        <Route path="/admin/orders" element={<OrderManagement />} />
+                        <Route path="/admin/stats" element={<DataStatistics />} />
+                        <Route path="/admin/config" element={<SystemConfig />} />
                         <Route path="/user/*" element={<UserRoutes />} />
                         <Route path="/electrician/*" element={<ElectricianRoutes />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
