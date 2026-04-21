@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Power, MapPin, Filter, X, ChevronDown } from 'lucide-react';
+import { Clock, Power, MapPin, Filter, X, ChevronDown, Star, User, Phone, AlertCircle } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { Order, OrderStatus } from '../../../types';
 
@@ -13,6 +13,122 @@ interface ActiveFilter {
   value: string;
   label: string;
 }
+
+const OrderDetailModal = ({ order, onClose, onGrab }: { order: Order; onClose: () => void; onGrab: (id: string) => void }) => {
+  const getDistance = (orderId: string) => {
+    const distances: Record<string, string> = {
+      'ANDT-2026-0412-0891': '2.3km',
+      'ANDT-2026-0412-0892': '1.5km',
+      'ANDT-2026-0412-0893': '3.8km',
+    };
+    return distances[orderId] || '1.0km';
+  };
+
+  const serviceTypeLabels: Record<string, string> = {
+    'Repair': '急修',
+    'Install': '安装',
+    'Inspection': '检测',
+    'Checkup': '巡检',
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div
+        className="relative bg-white w-full max-w-lg rounded-t-3xl max-h-[85vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-800">订单详情</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <X size={20} className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold text-white mb-2 ${order.type === 'Repair' ? 'bg-red-500' : (order.type === 'Install' ? 'bg-blue-500' : (order.type === 'Inspection' ? 'bg-green-500' : 'bg-indigo-500'))}`}>
+                  {serviceTypeLabels[order.type] || order.type}
+                </span>
+                <h3 className="font-bold text-gray-800 text-lg">{order.title}</h3>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-extrabold text-red-600">¥{order.priceEstimate.min}</p>
+                <p className="text-xs text-gray-400">¥{order.priceEstimate.max}以内</p>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 font-mono bg-white px-2 py-1 rounded inline-block">
+              {order.id}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Clock size={18} className="text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 mb-1">预约时间</p>
+                <p className="font-medium text-gray-800">{order.scheduledTime}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="p-2 bg-green-50 rounded-lg">
+                <MapPin size={18} className="text-green-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-gray-400 mb-1">服务地址</p>
+                <p className="font-medium text-gray-800">{order.location.address}</p>
+                <span className="inline-block mt-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                  距离 {getDistance(order.id)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="p-2 bg-purple-50 rounded-lg">
+                <User size={18} className="text-purple-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 mb-1">客户信息</p>
+                <p className="font-medium text-gray-800">{order.clientName}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+            <div className="flex items-start space-x-2">
+              <AlertCircle size={18} className="text-amber-600 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">订单说明</p>
+                <p className="text-sm text-amber-700 mt-1">{order.description}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-2">
+            <p className="text-xs text-gray-400">抢单后请准时到达服务地点，如无法完成请提前取消订单</p>
+            <button
+              onClick={() => onGrab(order.id)}
+              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-blue-200 active:scale-[0.98] transition-all"
+            >
+              确认抢单
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-medium active:scale-[0.98] transition-all"
+            >
+              返回列表
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const WorkStatusToggle = () => {
     const [isOnline, setIsOnline] = useState(true);
@@ -40,6 +156,7 @@ export const TaskHall = () => {
   const [filter, setFilter] = useState<'Recommend' | 'Distance' | 'Price'>('Recommend');
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const mockExtraOrders: Order[] = [
       {
@@ -133,6 +250,7 @@ export const TaskHall = () => {
   }, [allOrders, activeFilters, filter]);
 
   const handleGrab = (id: string) => {
+    setSelectedOrder(null);
     if (id.startsWith('ANDT-')) {
         alert("演示订单，模拟抢单成功");
         return;
@@ -278,8 +396,11 @@ export const TaskHall = () => {
         )}
 
         {filteredOrders.map(order => (
-          <div key={order.id} className="bg-white p-0 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden transition-all active:scale-[0.99] group">
-            {/* Order Header */}
+          <div
+            key={order.id}
+            className="bg-white p-0 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden transition-all active:scale-[0.99] group"
+            onClick={() => setSelectedOrder(order)}
+          >
             <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
               <span className="text-xs text-gray-400 font-mono">{order.id}</span>
               <span className={`px-2 py-0.5 rounded text-xs font-bold text-white ${order.type === 'Repair' ? 'bg-red-500' : (order.type === 'Install' ? 'bg-blue-500' : (order.type === 'Inspection' ? 'bg-green-500' : 'bg-indigo-500'))}`}>
@@ -312,16 +433,32 @@ export const TaskHall = () => {
                     </div>
                 </div>
 
-                <button
-                    onClick={() => handleGrab(order.id)}
-                    className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-base shadow-lg shadow-blue-200 group-active:scale-[0.98] transition-all flex justify-center items-center hover:bg-blue-700"
-                >
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedOrder(order); }}
+                    className="flex-1 py-3 bg-white border border-blue-600 text-blue-600 rounded-xl font-bold text-base active:scale-[0.98] transition-all"
+                  >
+                    查看详情
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleGrab(order.id); }}
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-base shadow-lg shadow-blue-200 active:scale-[0.98] transition-all"
+                  >
                     立即抢单
-                </button>
+                  </button>
+                </div>
             </div>
           </div>
         ))}
       </div>
+
+      {selectedOrder && (
+        <OrderDetailModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onGrab={handleGrab}
+        />
+      )}
     </div>
   );
 };
