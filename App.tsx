@@ -22,6 +22,7 @@ const AppContent = () => {
     const isCarePage = location.pathname.includes('/user/care');
     const isAuthPage = ['/', '/role', '/login'].includes(location.pathname);
     const isCommunityPage = location.pathname.includes('/user/community');
+    const isAdminPage = location.pathname.startsWith('/admin');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -33,7 +34,7 @@ const AppContent = () => {
     const shouldRenderPersistentMap = role === 'USER' && isLayoutReady;
 
     return (
-        <div className="w-full h-full bg-[#f8fafc] relative flex flex-col overflow-hidden max-w-md mx-auto shadow-2xl border-x border-slate-200">
+        <div className={`w-full h-full bg-[#f8fafc] relative flex flex-col overflow-hidden ${isAdminPage ? '' : 'max-w-md mx-auto shadow-2xl border-x border-slate-200'}`}>
             {/* 核心内容层：在非地图页时提高 Z-Index 且允许点击 */}
             <div className={`flex-1 h-full overflow-hidden relative ${isCommunityPage ? 'z-[200]' : 'z-[100]'} ${isMapPage ? 'pointer-events-none' : 'pointer-events-auto'}`}>
                 <ErrorBoundary fallback={<div className="p-10 text-center bg-white h-full flex flex-col items-center justify-center">应用运行异常，请重启</div>}>
